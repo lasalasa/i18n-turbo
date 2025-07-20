@@ -7,7 +7,7 @@ import generate from "@babel/generator";
 import * as t from "@babel/types";
 import { getSourceFiles } from "./scanner";
 import { generateTranslationKey } from "./utils";
-const translate = require("@vitalets/google-translate-api");
+import { translate } from '@vitalets/google-translate-api';
 
 interface ExtractOptions {
   fnName: string;
