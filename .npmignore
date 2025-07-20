@@ -1,0 +1,7 @@
+node_modules
+test
+src
+*.ts
+*.png
+.vscode
+tsconfig.json
