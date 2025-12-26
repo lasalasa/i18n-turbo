@@ -252,12 +252,36 @@ export async function extractStringsFromDirectory(
 
               let replacement: t.Expression | t.JSXExpressionContainer;
 
-              // ✅ Detect if inside JSX attribute
-              if (path.parentPath.isJSXAttribute()) {
-                const attrName = path.parentPath.node.name;
-                if (t.isJSXIdentifier(attrName) && attrName.name === "data-testid")
+              // ✅ Detect if inside ignored JSX attribute (direct or nested)
+              const attributePath = path.findParent((p) => p.isJSXAttribute());
+              if (attributePath && attributePath.isJSXAttribute()) {
+                const attrName = attributePath.node.name;
+                if (
+                  t.isJSXIdentifier(attrName) &&
+                  [
+                    "data-testid",
+                    "className",
+                    "style",
+                    "id",
+                    "key",
+                    "ref",
+                    "width",
+                    "height",
+                    "href",
+                    "src",
+                    "type",
+                    "rel",
+                    "target",
+                    "alt",
+                    "placeholder",
+                  ].includes(attrName.name)
+                )
                   return;
+              }
 
+              // ✅ If inside JSX attribute (but not ignored), we need JSX wrapper
+              if (path.parentPath.isJSXAttribute()) {
+                // Double check we are direct child (standard string attr)
                 replacement = t.jsxExpressionContainer(
                   t.callExpression(t.identifier(options.fnName), [
                     t.stringLiteral(key),

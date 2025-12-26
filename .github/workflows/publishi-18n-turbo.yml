@@ -20,6 +20,6 @@ jobs:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci
-      - run: npm run build --if-present
-      - run: npm test
-      - run: npm publish
+      - run: npm run build -w packages/i18n-turbo
+      - run: npm test -w packages/i18n-turbo
+      - run: npm publish -w packages/i18n-turbo --provenance
