@@ -5,10 +5,14 @@
         "packages/*"
     ],
     "scripts": {
-        "dev": "npm run dev -w packages/playground",
-        "build": "npm run build -w packages/i18n-turbo",
+        "dev": "npm run pg:dev",
+        "pg:dev": "npm run dev -w packages/playground",
+        "i18n:build": "npm run build -w packages/i18n-turbo",
         "i18n:extract": "npm run i18n:extract -w packages/playground",
-        "test": "npm test --workspaces"
+        "i18n:release": "node ./scripts/i18n-release.js",
+        "test": "npm test --workspaces",
+        "build:all": "npm run build --workspaces",
+        "clean": "npm run clean --workspaces --if-present"
     },
     "devDependencies": {
         "concurrently": "^8.2.0"
