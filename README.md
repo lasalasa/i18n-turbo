@@ -1,73 +1,141 @@
 # i18n-turbo
 
-> Extract hardcoded strings from JSX/TSX/JS/TS files and export them to an i18n JSON format — with optional reverse transformation support.
+> 🚀 **Turbocharge your i18n workflow.**
+> Extract hardcoded strings from JSX/TSX/JS/TS files and export them to an i18n JSON format — with minimal configuration and maximum speed.
+
+## Features
+
+- ⚡ **Blazing Fast**: Asynchronous, parallel file processing for large codebases.
+- 🎯 **Smart Extraction**: Detects strings in JSX text, attributes, and variables.
+- 📁 **Namespaces**: Organize translations into multiple files (e.g., `auth.json`, `common.json`) based on file paths.
+- 💬 **Context Support**: Extract comments (`i18n: ...`) as translation context for translators.
+- 🔢 **Pluralization**: Automatically detects singular/plural patterns in ternary operators.
+- 🔧 **Configs**: Flexible `i18n-turbo.config.js` for custom key strategies, exclusions, and more.
+- 🔄 **Reverse Mode**: Revert `t('key')` back to original strings (great for refactoring).
 
 ## Install
 
 ```bash
 npm install -g i18n-turbo
-````
+```
 
 ## Usage
 
 ```bash
-i18n-turbo <input-dir> <output-en-json> [--dry-run] [--merge] [--lang <code>] [--fn <name>] [--reverse]
+i18n-turbo <input-dir> <output-file> [options]
 ```
 
-## Options
+### Examples
 
-* `--dry-run` — Show what would be replaced, but don’t modify files.
-* `--merge` — Merge new keys with existing `en.json` entries.
-* `--lang <code>` — Automatically translate to the specified language (e.g., `fr`, `es`) and generate `<lang>.json`.
-* `--fn <name>` — Set the i18n function name (default is `t`).
-* `--reverse` — Revert translated keys (e.g., `t("hello_world")`) back to the original hardcoded strings using the translation file.
+**Basic Extraction:**
+```bash
+i18n-turbo ./src ./locales/en.json
+```
 
-## Features
+**Translate to French:**
+```bash
+i18n-turbo ./src ./locales/en.json --lang fr
+```
 
-* Scans `.jsx`, `.tsx`, `.ts`, `.js` files
-* Extracts static text and replaces with `t('key')`
-* Outputs i18n JSON files (e.g., `en.json`, `fr.json`)
-* Reverses translated keys back to raw strings
-* Preserves original file structure
-* Supports dry-run, merge, and auto-translate
-
-## Examples
-
-### Extract mode
-
-**Dry run only (preview):**
-
+**Dry Run (Preview changes):**
 ```bash
 i18n-turbo ./src ./locales/en.json --dry-run
 ```
 
-**Translate to French and output `fr.json`:**
-
+**Update existing translations:**
 ```bash
-i18n-turbo ./examples ./locales/en.json --lang fr
+i18n-turbo ./src ./locales/en.json --merge
 ```
 
-**Use a custom function name (e.g. `i18n` instead of `t`):**
+## Configuration
 
-```bash
-i18n-turbo ./src ./locales/en.json --fn i18n
+Create an `i18n-turbo.config.js` file in your project root to customize behavior.
+
+```javascript
+// i18n-turbo.config.js
+module.exports = {
+  // Function Name (default: 't')
+  translationFunction: 't',
+
+  // String Length Threshold (default: 2)
+  minStringLength: 3,
+
+  // Key Generation
+  // Options: 'snake_case', 'camelCase', 'hash', or function(text)
+  keyGenerationStrategy: 'snake_case',
+
+  // Exclude directories/files (glob patterns)
+  excludePatterns: ['**/*.test.tsx', '**/stories/**'],
+
+  // Namespaces (Map source globs to namespace files)
+  namespaces: {
+    'src/features/auth/**': 'auth',
+    'src/features/dashboard/**': 'dashboard',
+    'src/components/**': 'common',
+  },
+
+  // Default target language for machine translation
+  targetLang: 'es'
+};
 ```
 
-### Reverse mode
+## Advanced Features
 
-**Revert translations (e.g. `t("hello_world")`) back to original strings:**
+### Namespaces
+Control where your strings go by defining namespaces.
+If you configure `namespaces`, `i18n-turbo` will output separate files in the output directory instead of a single file.
 
-```bash
-i18n-turbo ./examples ./locales/en.json --reverse
+```javascript
+// config
+namespaces: {
+  'src/auth/**': 'auth',
+}
+// Output: locales/auth.json, locales/common.json
 ```
 
-**Reverse using a custom i18n function name:**
+### Context Extraction
+Provide context to translators by adding comments starting with `i18n:`.
+The tool is smart enough to find comments attached to the node or its JSX siblings.
 
-```bash
-i18n-turbo ./src ./locales/en.json --reverse --fn i18n
+**Input:**
+```tsx
+{/* i18n: Title for the landing page */}
+<h1>Welcome Home</h1>
+
+const label = "Submit"; // i18n: Button label
 ```
 
-> 🔁 The reverse command reads keys from the translation file (e.g. `en.json`) and replaces `t("key")` with the original hardcoded string like `"Hello world"`.
+**Output (`en.json`):**
+```json
+{
+  "welcome_home": "Welcome Home",
+  "welcome_home_comment": "Title for the landing page",
+  "submit": "Submit",
+  "submit_comment": "Button label"
+}
+```
+
+### Pluralization
+`i18n-turbo` detects simple pluralization patterns in your code.
+
+**Input:**
+```tsx
+<p>{count === 1 ? "One item" : "Many items"}</p>
+```
+
+**Output:**
+Replaces with `t('one_item')` and `t('many_items')` (Base support).
+*Future updates will implement automatic `t('key', { count })` merging.*
+
+## Key Generation Strategies
+
+- **snake_case**: `Hello World` -> `hello_world` (Default)
+- **camelCase**: `Hello World` -> `helloWorld`
+- **hash**: `Hello World` -> `a1b2c3d4` (Useful for stable keys regardless of content)
+- **Custom**:
+  ```javascript
+  keyGenerationStrategy: (text) => text.toUpperCase().replace(/\s+/g, '_')
+  ```
 
 ## License
 
