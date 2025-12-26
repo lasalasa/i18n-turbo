@@ -70,6 +70,13 @@ export async function extractStringsFromDirectory(
         // ✅ Skip import declarations
         if (path.findParent((p) => p.isImportDeclaration())) return;
 
+        // ✅ Skip require('...') calls
+        if (
+          path.parentPath.isCallExpression() &&
+          t.isIdentifier(path.parentPath.node.callee) &&
+          path.parentPath.node.callee.name === 'require'
+        ) return;
+
         // ✅ Skip if already translated
         if (
           path.parentPath.isCallExpression() &&
@@ -88,6 +95,9 @@ export async function extractStringsFromDirectory(
 
         // ✅ Detect if inside JSX attribute
         if (path.parentPath.isJSXAttribute()) {
+          const attrName = path.parentPath.node.name;
+          if (t.isJSXIdentifier(attrName) && attrName.name === 'data-testid') return;
+
           replacement = t.jsxExpressionContainer(
             t.callExpression(t.identifier(options.fnName), [
               t.stringLiteral(key),
