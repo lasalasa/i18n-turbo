@@ -3,22 +3,26 @@ import fs from "fs";
 import { promises as fsPromises } from "fs"; // Async FS
 import path from "path";
 import * as babel from "@babel/core";
-import traverse, { NodePath } from "@babel/traverse";
-import generate from "@babel/generator";
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const traverse = require("@babel/traverse").default;
+const generate = require("@babel/generator").default;
+import type { NodePath } from "@babel/traverse";
 import * as t from "@babel/types";
-import { getSourceFiles } from "./scanner";
-import { generateTranslationKey } from "./utils";
+import { getSourceFiles } from "./scanner.js";
+import { generateTranslationKey } from "./utils.js";
 import { translate } from '@vitalets/google-translate-api';
 import pLimit from "p-limit";
 import { minimatch } from "minimatch";
 
-import { I18nTurboConfig } from "./config";
+import { I18nTurboConfig } from "./config.js";
 
 interface ExtractOptions {
   fnName: string;
   dryRun: boolean;
   merge: boolean;
   lang?: string;
+  force?: boolean;
   config?: I18nTurboConfig;
 }
 
@@ -231,6 +235,30 @@ export async function extractStringsFromDirectory(
               )
                 return;
 
+              // ✅ Skip common DOM identifiers
+              if (path.parentPath.isCallExpression()) {
+                const callee = path.parentPath.node.callee;
+                let fnName = '';
+                if (t.isIdentifier(callee)) {
+                  fnName = callee.name;
+                } else if (t.isMemberExpression(callee) && t.isIdentifier(callee.property)) {
+                  fnName = callee.property.name;
+                }
+
+                if ([
+                  'getElementById',
+                  'querySelector',
+                  'querySelectorAll',
+                  'addEventListener',
+                  'removeEventListener',
+                  'postMessage',
+                  'setAttribute',
+                  'getAttribute'
+                ].includes(fnName)) {
+                  return;
+                }
+              }
+
               if (
                 !value ||
                 value.length < (options.config?.minStringLength || 2) ||
@@ -272,8 +300,16 @@ export async function extractStringsFromDirectory(
                     "type",
                     "rel",
                     "target",
-                    "alt",
-                    "placeholder",
+                    // "alt",          // Likely want to translate alt
+                    // "placeholder",  // Likely want to translate placeholder
+                    "path",            // React Router
+                    "to",              // Link
+                    "element",         // Route
+                    "defaultLocale",   // I18nProvider
+                    "value",           // Inputs
+                    "name",            // Inputs
+                    "htmlFor",         // Labels
+                    "as"               // Polymorphic
                   ].includes(attrName.name)
                 )
                   return;
@@ -358,7 +394,30 @@ export async function extractStringsFromDirectory(
       if (options.lang && options.lang !== "en") {
         const translated: Record<string, string> = {};
 
+        let langPath;
+        if (options.config?.namespaces) {
+          langPath = path.join(outputDir, `${ns}_${options.lang}.json`);
+        } else {
+          langPath = path.join(path.dirname(outputFile), `${options.lang}.json`);
+        }
+
+        // Load existing translations for this language if available
+        let existingTranslations: Record<string, string> = {};
+        if (fs.existsSync(langPath)) {
+          try {
+            existingTranslations = JSON.parse(await fsPromises.readFile(langPath, 'utf-8'));
+          } catch (e) {
+            console.warn(`[WARN] Could not parse existing translation file ${langPath}`);
+          }
+        }
+
         for (const [key, text] of Object.entries(map)) {
+          // Check if exists
+          if (!options.force && existingTranslations[key]) {
+            translated[key] = existingTranslations[key];
+            continue;
+          }
+
           try {
             const res = await translate(text, { to: options.lang });
             console.log(`Translated [${ns}] "${text}" => "${res.text}"`);
@@ -367,25 +426,6 @@ export async function extractStringsFromDirectory(
             console.warn(`Translation failed for "${text}"`, err);
             translated[key] = text;
           }
-        }
-
-        // If namespaces active: `locales/lang/ns.json` or `locales/ns.lang.json`?
-        // Let's do `locales/lang.json` if single file, 
-        // BUT if namespaces: `locales/ns.json` (en), `locales/ns_fr.json`?
-        // OR `locales/fr/ns.json`.
-
-        // Let's stick to `locales/fr.json` if NO namespaces (legacy).
-        // If namespaces: `locales/fr/ns.json`? Or `locales/ns.fr.json`?
-        // Complexity increase!
-
-        // Simplified for this task:
-        // If namespaces: write `outputDir/ns.json`. If lang available, write `outputDir/ns_lang.json` (flat).
-
-        let langPath;
-        if (options.config?.namespaces) {
-          langPath = path.join(outputDir, `${ns}_${options.lang}.json`);
-        } else {
-          langPath = path.join(path.dirname(outputFile), `${options.lang}.json`);
         }
 
         await fsPromises.writeFile(langPath, JSON.stringify(translated, null, 2), "utf-8");

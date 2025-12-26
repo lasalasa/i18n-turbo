@@ -1,15 +1,27 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "CommonJS",
-    "lib": ["ES2020"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": [
+      "ES2020",
+      "DOM"
+    ],
+    "jsx": "react-jsx",
     "outDir": "dist",
+    "declaration": true,
     "strict": true,
     "esModuleInterop": true,
-    "moduleResolution": "node",
     "resolveJsonModule": true,
     "skipLibCheck": true
   },
-  "include": ["src", "bin"],
-  "exclude": ["node_modules", "examples", "test"]
+  "include": [
+    "src",
+    "bin"
+  ],
+  "exclude": [
+    "node_modules",
+    "examples",
+    "test"
+  ]
 }

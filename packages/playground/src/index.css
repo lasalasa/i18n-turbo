@@ -78,6 +78,7 @@ body {
   margin: 0 0 1rem;
   background: linear-gradient(to right, #38bdf8, #818cf8);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   width: fit-content;
 }
@@ -217,4 +218,17 @@ body {
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+/* Documentation Sidebar */
+.docs-sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .docs-sidebar {
+    display: block;
+  }
 }

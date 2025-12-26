@@ -7,44 +7,89 @@
 
 - ⚡ **Blazing Fast**: Asynchronous, parallel file processing for large codebases.
 - 🎯 **Smart Extraction**: Detects strings in JSX text, attributes, and variables.
+- ⚛️ **React Integration**: Built-in `I18nProvider` and `useTranslation` hook for type-safe internalization.
 - 📁 **Namespaces**: Organize translations into multiple files (e.g., `auth.json`, `common.json`) based on file paths.
 - 💬 **Context Support**: Extract comments (`i18n: ...`) as translation context for translators.
-- 🔢 **Pluralization**: Automatically detects singular/plural patterns in ternary operators.
-- 🔧 **Configs**: Flexible `i18n-turbo.config.js` for custom key strategies, exclusions, and more.
+- 🤖 **Auto Translation**: Automatically translate missing keys to other languages (e.g. `--lang es`) using Google Translate.
+- 🔧 **Configs**: Flexible `i18n-turbo.config.js` for custom key strategies, namespaces, and exclusions.
 - 🔄 **Reverse Mode**: Revert `t('key')` back to original strings (great for refactoring).
 
 ## Install
 
 ```bash
-npm install -g i18n-turbo
+npm install i18n-turbo
 ```
 
-## Usage
+## React Integration
+
+Wrap your app with `I18nProvider` and use the `useTranslation` hook.
+
+```tsx
+// src/App.tsx
+import { I18nProvider, useTranslation } from 'i18n-turbo';
+import en from './locales/en.json';
+import es from './locales/es.json';
+
+const translations = { en, es };
+
+export default function App() {
+  return (
+    <I18nProvider translations={translations} defaultLocale="en">
+      <MyComponent />
+    </I18nProvider>
+  );
+}
+
+function MyComponent() {
+  const { t, lang, setLang } = useTranslation();
+  
+  return (
+    <div>
+      <h1>{t("hello_world")}</h1>
+      <button onClick={() => setLang('es')}>Español</button>
+    </div>
+  );
+}
+```
+
+## CLI Usage
+
+Run the CLI to extract strings and manage translations.
 
 ```bash
-i18n-turbo <input-dir> <output-file> [options]
+npx i18n-turbo <input-dir> <output-file> [options]
 ```
 
 ### Examples
 
 **Basic Extraction:**
+Extract strings from `./src` to `./locales/en.json`.
 ```bash
-i18n-turbo ./src ./locales/en.json
+npx i18n-turbo ./src ./locales/en.json
 ```
 
-**Translate to French:**
+**Add a New Language:**
+Translate extracted strings to French (`fr`).
 ```bash
-i18n-turbo ./src ./locales/en.json --lang fr
+npx i18n-turbo ./src ./locales/en.json --lang fr
 ```
 
-**Dry Run (Preview changes):**
+**Update Translations:**
+Merge new keys without overwriting existing manual translations.
 ```bash
-i18n-turbo ./src ./locales/en.json --dry-run
+npx i18n-turbo ./src ./locales/en.json --merge
 ```
 
-**Update existing translations:**
+**Force Update:**
+Re-translate all keys (overwrite everything).
 ```bash
-i18n-turbo ./src ./locales/en.json --merge
+npx i18n-turbo ./src ./locales/en.json --force
+```
+
+**Reverse Extraction:**
+Restore original text from keys (undo `t('key')` replacement).
+```bash
+npx i18n-turbo ./src ./locales/en.json --reverse
 ```
 
 ## Configuration
@@ -73,29 +118,13 @@ module.exports = {
     'src/features/dashboard/**': 'dashboard',
     'src/components/**': 'common',
   },
-
-  // Default target language for machine translation
-  targetLang: 'es'
 };
 ```
 
 ## Advanced Features
 
-### Namespaces
-Control where your strings go by defining namespaces.
-If you configure `namespaces`, `i18n-turbo` will output separate files in the output directory instead of a single file.
-
-```javascript
-// config
-namespaces: {
-  'src/auth/**': 'auth',
-}
-// Output: locales/auth.json, locales/common.json
-```
-
 ### Context Extraction
 Provide context to translators by adding comments starting with `i18n:`.
-The tool is smart enough to find comments attached to the node or its JSX siblings.
 
 **Input:**
 ```tsx
@@ -116,7 +145,7 @@ const label = "Submit"; // i18n: Button label
 ```
 
 ### Pluralization
-`i18n-turbo` detects simple pluralization patterns in your code.
+`i18n-turbo` detects simple ternary plurals.
 
 **Input:**
 ```tsx
@@ -124,18 +153,7 @@ const label = "Submit"; // i18n: Button label
 ```
 
 **Output:**
-Replaces with `t('one_item')` and `t('many_items')` (Base support).
-*Future updates will implement automatic `t('key', { count })` merging.*
-
-## Key Generation Strategies
-
-- **snake_case**: `Hello World` -> `hello_world` (Default)
-- **camelCase**: `Hello World` -> `helloWorld`
-- **hash**: `Hello World` -> `a1b2c3d4` (Useful for stable keys regardless of content)
-- **Custom**:
-  ```javascript
-  keyGenerationStrategy: (text) => text.toUpperCase().replace(/\s+/g, '_')
-  ```
+Replaces with `t('one_item')` and `t('many_items')`.
 
 ## License
 

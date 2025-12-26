@@ -1,15 +1,16 @@
 // bin/cli.ts or src/cli.ts
 
 import path from 'path';
-import { extractStringsFromDirectory } from './extractor';
-import { reverseStringsFromDirectory } from './reverser';
-import { loadConfig, I18nTurboConfig } from './config';
+import { extractStringsFromDirectory } from './extractor.js';
+import { reverseStringsFromDirectory } from './reverser.js';
+import { loadConfig, I18nTurboConfig } from './config.js';
 
 interface CLIOptions {
   fnName: string;
   dryRun: boolean;
   merge: boolean;
   lang?: string;
+  force?: boolean;
   config?: I18nTurboConfig;
 }
 
@@ -35,6 +36,7 @@ export async function runCLI() {
     dryRun: args.includes('--dry-run'),
     merge: args.includes('--merge'),
     lang,
+    force: args.includes('--force'),
     config,
   };
 
