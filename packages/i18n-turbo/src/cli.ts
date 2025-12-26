@@ -3,30 +3,39 @@
 import path from 'path';
 import { extractStringsFromDirectory } from './extractor';
 import { reverseStringsFromDirectory } from './reverser';
+import { loadConfig, I18nTurboConfig } from './config';
 
 interface CLIOptions {
   fnName: string;
   dryRun: boolean;
   merge: boolean;
   lang?: string;
+  config?: I18nTurboConfig;
 }
 
 export async function runCLI() {
+  const config = loadConfig();
   const args = process.argv.slice(2);
   const inputDir = args[0] || './src';
   const outputFile = args[1] || './locales/en.json';
 
   const fnNameIndex = args.indexOf('--fn');
-  const fnName = fnNameIndex !== -1 && args[fnNameIndex + 1] ? args[fnNameIndex + 1] : 't';
+  // CLI flag takes precedence over config
+  const fnName = fnNameIndex !== -1 && args[fnNameIndex + 1]
+    ? args[fnNameIndex + 1]
+    : (config.translationFunction || 't');
 
   const langIndex = args.indexOf('--lang');
-  const lang = langIndex !== -1 && args[langIndex + 1] ? args[langIndex + 1] : undefined;
+  const lang = langIndex !== -1 && args[langIndex + 1]
+    ? args[langIndex + 1]
+    : config.targetLang;
 
   const options: CLIOptions = {
     fnName,
     dryRun: args.includes('--dry-run'),
     merge: args.includes('--merge'),
     lang,
+    config,
   };
 
   const resolvedInputDir = path.resolve(inputDir);

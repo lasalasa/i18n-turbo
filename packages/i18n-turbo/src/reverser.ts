@@ -6,16 +6,16 @@ import * as t from "@babel/types";
 import generate from "@babel/generator";
 import { getSourceFiles } from "./scanner";
 
-export function reverseStringsFromDirectory(
+export async function reverseStringsFromDirectory(
   inputDir: string,
   i18nFile: string,
   fnName: string = "t"
-): void {
+): Promise<void> {
   const translationMap: Record<string, string> = JSON.parse(
     fs.readFileSync(i18nFile, "utf-8")
   );
 
-  const files = getSourceFiles(inputDir);
+  const files = await getSourceFiles(inputDir);
 
   for (const file of files) {
     const code = fs.readFileSync(file, "utf-8");

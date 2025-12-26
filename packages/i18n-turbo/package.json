@@ -1,0 +1,58 @@
+{
+  "name": "i18n-turbo",
+  "version": "0.1.1",
+  "description": "Extract hardcoded text from JSX/TSX files and convert to i18n format.",
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "bin": {
+    "i18n-turbo": "dist/bin/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node bin/cli.ts",
+    "test": "vitest",
+    "prepare": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lasalasa/i18n-turbo.git"
+  },
+  "keywords": [
+    "i18n",
+    "translation",
+    "react",
+    "cli",
+    "internationalization"
+  ],
+  "author": "Lasantha Lakmal",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lasalasa/i18n-turbo.git/issues"
+  },
+  "homepage": "https://github.com/lasalasa/i18n-turbo#readme",
+  "dependencies": {
+    "@babel/core": "^7.0.0",
+    "@babel/generator": "^7.0.0",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/preset-typescript": "^7.0.0",
+    "@babel/traverse": "^7.0.0",
+    "@babel/types": "^7.0.0",
+    "@types/minimatch": "^5.1.2",
+    "@vitalets/google-translate-api": "^9.2.1",
+    "glob": "^10.4.5",
+    "minimatch": "^10.1.1",
+    "p-limit": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/babel__core": "^7.20.5",
+    "@types/babel__generator": "^7.27.0",
+    "@types/babel__traverse": "^7.20.7",
+    "ts-node": "^10.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^3.2.4"
+  }
+}
