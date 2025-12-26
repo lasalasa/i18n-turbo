@@ -1,6 +1,6 @@
 {
   "name": "i18n-turbo",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "Extract hardcoded text from JSX/TSX files and convert to i18n format.",
   "main": "dist/index.js",
   "files": [
