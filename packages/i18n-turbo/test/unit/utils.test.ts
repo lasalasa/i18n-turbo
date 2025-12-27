@@ -1,6 +1,5 @@
-// test/extractor.test.ts
 import { describe, it, expect } from 'vitest';
-import { generateTranslationKey } from '../src/utils';
+import { generateTranslationKey } from '../../src/utils';
 
 describe('generateTranslationKey', () => {
   it('should convert text to snake_case key', () => {
@@ -38,5 +37,26 @@ describe('generateTranslationKey', () => {
 
   it('should convert hyphenated words to snake_case', () => {
     expect(generateTranslationKey('well-done')).toBe('well_done');
+  });
+
+  it('should support camelCase strategy', () => {
+    expect(generateTranslationKey('Hello World', 'camelCase')).toBe('helloWorld');
+    expect(generateTranslationKey('Save & Continue', 'camelCase')).toBe('saveContinue');
+    expect(generateTranslationKey('Top 10 Results', 'camelCase')).toBe('top10Results');
+  });
+
+  it('should support hash strategy', () => {
+    const text = 'Hello World';
+    const hash = generateTranslationKey(text, 'hash');
+    expect(hash).toHaveLength(8);
+    expect(/^[a-f0-9]+$/.test(hash)).toBe(true);
+    // MD5 of "Hello World" is b10a8db164e0754105b7a99be72e3fe5
+    // First 8 chars: b10a8db1
+    expect(hash).toBe('b10a8db1');
+  });
+
+  it('should support custom strategy function', () => {
+    const customStrat = (text: string) => `custom_${text.length}`;
+    expect(generateTranslationKey('hello', customStrat)).toBe('custom_5');
   });
 });

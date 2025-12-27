@@ -1,19 +1,19 @@
 import React from 'react';
 
 export const DemoComponent = () => {
-    return (
-        <div title="Container Title">
-            <h1>Hello World</h1>
-            <p>Welcome to the i18n-turbo demo.</p>
-            <button aria-label="Submit Button">Click Me</button>
-            <span>Short</span>
+  return (
+    <div title={t("container_title")}>
+            <h1>{t("hello_world")}</h1>
+            <p>{t("welcome_to_the_i18n_turbo_demo")}</p>
+            <button aria-label={t("submit_button")}>{t("click_me")}</button>
+            <span>{t("short")}</span>
             <div>{`Template literal with variable`}</div>
-            <div>Static string inside expression container</div>
-        </div>
-    );
+            <div>{t("static_string_inside_expression_container")}</div>
+        </div>);
+
 };
 
 export const helper = () => {
-  const message = "This is a plain string literal";
+  const message = t("this_is_a_plain_string_literal");
   return message;
 };

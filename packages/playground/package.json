@@ -8,10 +8,12 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "i18n:extract": "i18n-turbo src src/locales/en.json"
+    "i18n:init": "i18n-turbo init",
+    "i18n:extract": "i18n-turbo extract",
+    "i18n:trans": "i18n-turbo trans",
+    "i18n:reverse": "i18n-turbo src src/locales/en.json --reverse"
   },
   "dependencies": {
-    "i18n-turbo": "*",
     "lucide-react": "^0.562.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

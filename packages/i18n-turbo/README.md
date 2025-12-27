@@ -54,69 +54,80 @@ function MyComponent() {
 
 ## CLI Usage
 
-Run the CLI to extract strings and manage translations.
-
+### 1. Initialize
+Set up your project interactively:
 ```bash
-npx i18n-turbo <input-dir> <output-file> [options]
+npx i18n-turbo init
+```
+Follow the prompts to configure your source folder, target language, and output path.
+
+### 2. Extract Strings
+Scan your code and update your base locale file (e.g., `en.json`).
+```bash
+npx i18n-turbo extract
+```
+*or simply:*
+```bash
+npx i18n-turbo
 ```
 
-### Examples
-
-**Basic Extraction:**
-Extract strings from `./src` to `./locales/en.json`.
+### 3. Translate
+Extract strings and automatically translate them to other languages using Google Translate.
 ```bash
-npx i18n-turbo ./src ./locales/en.json
+npx i18n-turbo trans --lang fr
+```
+*Short alias:*
+```bash
+npx i18n-turbo trans -l fr
 ```
 
-**Add a New Language:**
-Translate extracted strings to French (`fr`).
-```bash
-npx i18n-turbo ./src ./locales/en.json --lang fr
-```
+### Commands & Options
 
-**Update Translations:**
-Merge new keys without overwriting existing manual translations.
-```bash
-npx i18n-turbo ./src ./locales/en.json --merge
-```
+| Command | Description |
+| :--- | :--- |
+| `init` | Initialize configuration file |
+| `extract` | Extract strings (Default) |
+| `trans` | Extract and translate |
 
-**Force Update:**
-Re-translate all keys (overwrite everything).
-```bash
-npx i18n-turbo ./src ./locales/en.json --force
-```
-
-**Reverse Extraction:**
-Restore original text from keys (undo `t('key')` replacement).
-```bash
-npx i18n-turbo ./src ./locales/en.json --reverse
-```
+| Option | Alias | Description |
+| :--- | :--- | :--- |
+| `--lang` | `-l` | Target language code |
+| `--input` | `-i` | Input directory |
+| `--output` | `-o` | Output file path |
+| `--dry-run` | `-d` | Simulate without writing files |
+| `--force` | `-f` | Overwrite existing keys |
+| `--merge` | | Merge with existing translations |
+| `--reverse` | | Restore original text from keys |
 
 ## Configuration
 
-Create an `i18n-turbo.config.js` file in your project root to customize behavior.
+Create an `i18n-turbo.config.js` (or `.cjs`) file in your project root to customize behavior.
 
 ```javascript
-// i18n-turbo.config.js
+// i18n-turbo.config.js (or .cjs)
+/** @type {import('i18n-turbo').I18nTurboConfig} */
 module.exports = {
-  // Function Name (default: 't')
-  translationFunction: 't',
+  // Main Options
+  input: 'src', 
+  output: 'src/locales/en.json',
+  targetLang: 'en',
+  secondaryLanguages: ['es', 'fr', 'de'],
 
-  // String Length Threshold (default: 2)
-  minStringLength: 3,
+  // Parsing options
+  translationFunction: 't',
+  minStringLength: 2,
 
   // Key Generation
-  // Options: 'snake_case', 'camelCase', 'hash', or function(text)
+  // Options: 'snake_case', 'camelCase', 'hash'
   keyGenerationStrategy: 'snake_case',
 
-  // Exclude directories/files (glob patterns)
+  // Advanced
   excludePatterns: ['**/*.test.tsx', '**/stories/**'],
 
-  // Namespaces (Map source globs to namespace files)
+  // Namespaces (optional)
   namespaces: {
-    'src/features/auth/**': 'auth',
-    'src/features/dashboard/**': 'dashboard',
-    'src/components/**': 'common',
+    'common': 'src/components/**',
+    'auth': 'src/features/auth/**'
   },
 };
 ```
@@ -143,6 +154,43 @@ const label = "Submit"; // i18n: Button label
   "submit_comment": "Button label"
 }
 ```
+
+### Ignoring Content
+You can exclude specific content from extraction in several ways:
+
+**1. Data Attribute (for JSX elements):**
+```tsx
+<div data-i18n-ignore>Do Not Translate</div>
+```
+
+**2. Ignore Comments (for lines/logic):**
+Use `// i18n-ignore` or `/* i18n-ignore */` to skip specific lines or expressions.
+```typescript
+// i18n-ignore
+element.scrollIntoView({ behavior: "smooth" });
+
+const type = "preview" /* i18n-ignore */;
+```
+
+**3. Automatic Exclusion:**
+Common non-translatable properties are automatically ignored:
+`className`, `style`, `id`, `width`, `height`, `src`, `href`, `behavior`, `ref`, `key`, `type`...
+
+**4. Global Config:**
+```javascript
+// i18n-turbo.config.js
+module.exports = {
+  ignoreTags: ['code', 'style', 'script'],
+};
+```
+
+### Lockfile & Safety
+`i18n-turbo` creates an `i18n-turbo.lock.json` file to map generated keys back to their original source text.
+- **Data Preservation**: It ensures that running `extract` multiple times doesn't lose your original text.
+- **Reverse Mode**: Enables `npx i18n-turbo --reverse` to restore your codebase to its original state using the lockfile data.
+
+### Auto-Formatting
+The CLI automatically formats your code using **Prettier** after modification, ensuring your code style remains consistent.
 
 ### Pluralization
 `i18n-turbo` detects simple ternary plurals.
