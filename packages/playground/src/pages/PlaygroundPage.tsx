@@ -227,8 +227,7 @@ const [name, setName] = useState("${name}");
                 </p>
                 <div className="code-block" style={{ background: "#000" }}>
                   <code>
-                    npx i18n-turbo packages/playground/src
-                    packages/playground/src/locales/it.json --lang it
+                    npx i18n-turbo trans --lang it
                   </code>
                 </div>
               </div>

@@ -167,10 +167,10 @@ export const DocumentationPage = () => {
                 <code>
                   {`// i18n-turbo.config.js
 module.exports = {
-  languages: ['en', 'fr', 'es'],
-  defaultLanguage: 'en',
-  src: './src',
-  out: './src/locales'
+  targetLang: 'en',
+  secondaryLanguages: ['fr', 'es'],
+  input: 'src',
+  output: 'src/locales/en.json'
 }`}
                 </code>
               </div>
@@ -214,9 +214,8 @@ function MyComponent() {
                 </h3>
                 <p className="text-secondary mb-4">
                   {t("add")}
-
                   <code>data-i18n-ignore</code>
-                  {t("to_any_html_element")}
+                  {t("attribute_to_any_html_element")}
                 </p>
                 <div className="code-block" style={{ margin: "0 0 1.5rem" }}>
                   <code>
@@ -228,14 +227,49 @@ function MyComponent() {
                 <h3 className="text-accent mb-4">{t("using_class_name")}</h3>
                 <p className="text-secondary mb-4">
                   {t("add_the")}
-
                   <code>notranslate</code>
                   {t("class_to_any_element")}
                 </p>
-                <div className="code-block" style={{ margin: 0 }}>
+                <div className="code-block" style={{ margin: "0 0 1.5rem" }}>
                   <code>
                     &lt;span className="notranslate"&gt;Ignored
                     text&lt;/span&gt;
+                  </code>
+                </div>
+
+                <h3 className="text-accent mb-4">{t("using_comments_new")}</h3>
+                <p className="text-secondary mb-4">
+                  {t("use")}
+                  <code>// i18n-ignore</code>
+                  {t("or")}
+                  <code>/* i18n-ignore */</code>
+                  {t("to_skip_specific_lines")}
+                </p>
+                <div className="code-block" style={{ margin: "0 0 1.5rem" }}>
+                  <code>
+                    {`// i18n-ignore
+<p>This line is ignored</p>
+
+const type = "preview" /* i18n-ignore */;`}
+                  </code>
+                </div>
+
+                <h3 className="text-accent mb-4">{t("automatic_exclusion")}</h3>
+                <p className="text-secondary mb-4">
+                  {t("common_properties_like")} <code>className</code>,{" "}
+                  <code>style</code>, <code>id</code>, <code>href</code>,{" "}
+                  <code>src</code>
+                  {t("and")} <code>behavior</code>{" "}
+                  {t("map_keys_are_automatically_ignored")}
+                </p>
+
+                <h3 className="text-accent mb-4">{t("global_config")}</h3>
+                <div className="code-block" style={{ margin: 0 }}>
+                  <code>
+                    {`// i18n-turbo.config.js
+module.exports = {
+  ignoreTags: ['code', 'style', 'script'],
+};`}
                   </code>
                 </div>
               </div>
@@ -254,7 +288,7 @@ function MyComponent() {
                     {t("initialize_a_configuration_file_for_your_project")}
                   </p>
                   <div className="code-block" style={{ margin: 0 }}>
-                    <code>npm run i18n:init</code>
+                    <code>npx i18n-turbo init</code>
                   </div>
                 </div>
 
@@ -264,7 +298,7 @@ function MyComponent() {
                     {t("scans_your_source_code_for_strings_and_updates_loc")}
                   </p>
                   <div className="code-block" style={{ margin: 0 }}>
-                    <code>npm run i18n:extract</code>
+                    <code>npx i18n-turbo extract</code>
                   </div>
                 </div>
 
@@ -274,8 +308,43 @@ function MyComponent() {
                     {t("extracts_strings_and_automatically_translates_them")}
                   </p>
                   <div className="code-block" style={{ margin: 0 }}>
-                    <code>npm run i18n:trans</code>
+                    <code>npx i18n-turbo trans --lang fr</code>
                   </div>
+                </div>
+
+                <div className="card">
+                  <h3 className="text-accent">{t("reverse_refactor")}</h3>
+                  <p className="text-secondary mb-4">
+                    {t("restores_extracted_keys_back_to_their_original_tex")}
+                  </p>
+                  <div className="code-block" style={{ margin: 0 }}>
+                    <code>npx i18n-turbo --reverse</code>
+                  </div>
+                </div>
+
+                <div className="card">
+                  <h3 className="text-accent">{t("options")}</h3>
+                  <ul
+                    className="text-secondary"
+                    style={{ paddingLeft: "1.2rem", lineHeight: "1.8" }}
+                  >
+                    <li>
+                      <code>--lang, -l</code>
+                      {t("target_language_for_translation")}
+                    </li>
+                    <li>
+                      <code>--dry-run, -d</code>
+                      {t("simulate_without_writing_files")}
+                    </li>
+                    <li>
+                      <code>--force, -f</code>
+                      {t("overwrite_existing_keys")}
+                    </li>
+                    <li>
+                      <code>--reverse</code>
+                      {t("restore_original_text")}
+                    </li>
+                  </ul>
                 </div>
               </div>
             </section>
