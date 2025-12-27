@@ -73,14 +73,14 @@ describe('Integration: Negative Cases', () => {
         const transformedCode = fs.readFileSync(inputPath, 'utf-8');
 
         // 1 & 2. Imports should remain untouched
-        expect(transformedCode).toContain("require('some-lib')");
+        expect(transformedCode).toContain('require("some-lib")');
 
         // 3. Short strings
-        expect(transformedCode).toContain('const a = "a"');
+        expect(transformedCode).toContain('const a = "a";');
 
         // 4. No letters
-        expect(transformedCode).toContain('const symbols = "!!!"');
-        expect(transformedCode).toContain('const numbers = "12345"');
+        expect(transformedCode).toContain('const symbols = "!!!";');
+        expect(transformedCode).toContain('const numbers = "12345";');
 
         // 5. Already translated
         expect(transformedCode).toContain('t("already_translated")');
