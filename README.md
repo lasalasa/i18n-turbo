@@ -18,9 +18,14 @@ This monorepo contains the following packages:
 ## ✨ Features
 
 - **Automated Extraction**: Scans your code for strings and generates JSON locale files.
+- **Lockfile & Safety**: Prevents data loss and maps keys back to original text.
+- **Reverse Mode**: Restore extracted keys back to source text (`--reverse`) for easy refactoring.
+- **Auto-Formatting**: Built-in Prettier integration ensures your code stays clean.
+- **Context Aware**: Extracts developer comments (`i18n: ...`) to assist translators.
+- **Smart Ignore**: Flexible exclusion via attributes, comments (`// i18n-ignore`), or config.
+- **Auto Translation**: Integrated Google Translate support.
 - **Type Safety**: Built with TypeScript for robust development.
-- **Context Aware**: Extracts developer comments to assist translators.
-- **No Runtime Overhead**: Zero-dependencies solution for maximizing performance.
+- **No Runtime Overhead**: Zero-dependencies solution.
 - **Playground**: Includes a full example app to demonstrate capabilities.
 
 ## 🛠️ Development
@@ -52,11 +57,17 @@ This monorepo contains the following packages:
 To extract strings from the playground application:
 
 ```bash
-# Extract to English
-npm run i18n:extract -w packages/playground
+# Initialize configuration
+npx i18n-turbo init
 
-# Add a new language (e.g., Spanish)
-npx i18n-turbo packages/playground/src packages/playground/src/locales/es.json --lang es
+# Extract strings
+npx i18n-turbo extract
+
+# Extract and translate to Spanish
+npx i18n-turbo trans --lang es
+
+# Reverse (Restore original text)
+npx i18n-turbo --reverse
 ```
 
 ## 🤝 Contributing
